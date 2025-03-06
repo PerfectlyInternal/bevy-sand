@@ -1,7 +1,9 @@
 [package]
 name = "bevy-sand"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-bevy = "0.14.2"
+bevy = "0.15.3"
+grid = "0.16.1"
+rand = "0.9.0"
