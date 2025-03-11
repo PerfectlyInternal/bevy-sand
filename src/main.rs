@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 mod sand;
+mod substances;
 mod render;
 
 fn main(){
