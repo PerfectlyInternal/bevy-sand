@@ -30,6 +30,7 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             depth_or_array_layers: 1,
         },
         TextureDimension::D2,
+        // use red for the default color so we can tell if something is wrong
         &(css::RED.to_u8_array()),
         TextureFormat::Rgba8UnormSrgb,
         RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD,
@@ -43,12 +44,12 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
 
 fn draw(handle: Res<OutputImage>, mut images: ResMut<Assets<Image>>, universe: Res<Universe>) {
     let image = images.get_mut(&handle.0).expect("Image not found");
-    for x in 0..universe.grid.cols() {
-        for y in 0..universe.grid.rows() {
+    for x in 0..universe.width {
+        for y in 0..universe.height {
             let _ = image.set_color_at(
                 x.try_into().unwrap(),
                 y.try_into().unwrap(),
-                universe.grid.get(x, y).unwrap().color);
+                universe.get(x, y).substance.default_color());
         }
     }
 }
