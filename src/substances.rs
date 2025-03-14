@@ -11,9 +11,11 @@ pub enum Substance {
     #[default]
     Void,
     OutOfBounds,
-    Sand,
+    // bool represents sand falling state
+    Sand(bool),
     Rock,
     Water,
+    Dirt,
 }
 
 impl fmt::Display for Substance {
@@ -21,9 +23,10 @@ impl fmt::Display for Substance {
        match self {
            Substance::Void => write!(f, "void"),
            Substance::OutOfBounds => write!(f, "oob"),
-           Substance::Sand => write!(f, "sand"),
+           Substance::Sand(a) => write!(f, "sand, falling: {a}"),
            Substance::Rock => write!(f, "rock"),
            Substance::Water => write!(f, "water"),
+           Substance::Dirt => write!(f, "dirt"),
        }
     }
 }
@@ -33,9 +36,10 @@ impl Substance {
     pub fn default_color(&self) -> Color {
         return Color::Srgba(match self {
             Substance::Void => css::BLACK,
-            Substance::Sand => css::BEIGE,
+            Substance::Sand(_) => css::BEIGE,
             Substance::Rock => css::GREY,
             Substance::Water => css::BLUE,
+            Substance::Dirt => css::BROWN,
             _ => css::RED
         });
     }
@@ -46,32 +50,70 @@ pub fn update_void(mut _interface: UniverseInterface) {
 }
 
 pub fn update_sand(mut interface: UniverseInterface) {
-    let offset = rand::thread_rng().gen_range(-1..2);
+    let mut offset = 0;
+    match interface.get(0, 0).substance {
+        Substance::Sand(false) => {
+            offset = rand::thread_rng().gen_range(-1..2);
+        },
+        _ => {}
+    }
     match interface.get(offset, 1).substance {
-        Substance::Void => {
-            let sand = interface.get(0, 0).substance;
-            let color = interface.get(0, 0).color;
-            interface.set(offset, 1, sand, color);
-            interface.set(0, 0, Substance::Void, Substance::Void.default_color());
+        Substance::Void | Substance::Water => {
+            interface.set(0, 0, Substance::Sand(true));
+            interface.swap(offset, 1);
+        },
+        _ => {
+            interface.set(0, 0, Substance::Sand(false));
+        }
+    }
+}
+
+pub fn update_rock(mut interface: UniverseInterface) {
+    let offsetx = rand::thread_rng().gen_range(-1..2);
+    let offsety = rand::thread_rng().gen_range(-1..2);
+    match interface.get(offsetx, offsety).substance {
+        Substance::Water => {
+            if rand::thread_rng().gen_range(0..10) > 6 {
+                interface.set(0, 0, Substance::Sand(false));
+            }
         },
         _ => {}
     }
 }
 
-pub fn update_rock(mut _interface: UniverseInterface) {
-
-}
-
 pub fn update_water(mut interface: UniverseInterface) {
-    let offsetx = rand::thread_rng().gen_range(-1..2);
-    let offsety = rand::thread_rng().gen_range(0..2);
-    match interface.get(offsetx, offsety).substance {
+    let offset = rand::thread_rng().gen_range(-1..2);
+    match interface.get(offset, 1).substance {
         Substance::Void => {
-            let water = interface.get(0, 0).substance;
-            let color = interface.get(0, 0).color;
-            interface.set(offsetx, offsety, water, color);
-            interface.set(0, 0, Substance::Void, Substance::Void.default_color());
+            interface.swap(offset, 1);
+            return;
         },
         _ => {}
+    }
+    let offset = rand::thread_rng().gen_range(-1..2);
+    match interface.get(offset, 0).substance {
+        Substance::Void => {
+            interface.swap(offset, 0);
+        },
+        _ => {}
+    }
+}
+
+pub fn update_dirt(mut interface: UniverseInterface) {
+    let mut offset = 0;
+    match interface.get(0, 0).substance {
+        Substance::Sand(false) => {
+            offset = rand::thread_rng().gen_range(-1..2);
+        },
+        _ => {}
+    }
+    match interface.get(offset, 1).substance {
+        Substance::Void | Substance::Water => {
+            interface.set(0, 0, Substance::Sand(true));
+            interface.swap(offset, 1);
+        },
+        _ => {
+            interface.set(0, 0, Substance::Sand(false));
+        }
     }
 }

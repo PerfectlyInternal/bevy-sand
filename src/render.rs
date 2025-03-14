@@ -4,14 +4,18 @@ use bevy::render::{
     render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
 use bevy::color::palettes::css;
+use iyes_perf_ui::prelude::*;
+use iyes_perf_ui::entries::PerfUiFramerateEntries;
 
 use crate::sand::Universe;
 
 pub struct RenderPlugin;
 impl bevy::app::Plugin for RenderPlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin);
+        app.add_plugins(PerfUiPlugin);
         app.add_systems(Startup, setup);
-        app.add_systems(FixedUpdate, draw);
+        app.add_systems(Update, draw);
     }
 }
 
@@ -19,7 +23,8 @@ impl bevy::app::Plugin for RenderPlugin {
 struct OutputImage(Handle<Image>);
 
 fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
-    commands.spawn(Camera2d);
+    commands.spawn(PerfUiFramerateEntries::default());
+    commands.spawn(Camera2d::default());
 
     // create an image that we are going to draw into
     let image = Image::new_fill(
@@ -37,8 +42,12 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     );
 
     let handle = images.add(image);
-    
-    commands.spawn(Sprite::from_image(handle.clone()));
+   
+
+    commands.spawn((
+            Sprite::from_image(handle.clone()),
+            Transform::from_scale(Vec3::new(2.0, 2.0, 2.0))
+            ));
     commands.insert_resource(OutputImage(handle));
 }
 
