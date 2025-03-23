@@ -1,5 +1,4 @@
 use std::fmt;
-use rand;
 use rand::Rng;
 use bevy::color::{palettes::css, Color};
 
@@ -49,7 +48,7 @@ impl fmt::Display for Substance {
 impl Substance {
     #[allow(unreachable_patterns)]
     pub fn default_color(&self) -> Color {
-        return Color::Srgba(match self {
+        Color::Srgba(match self {
             Substance::Void => css::BLACK,
             Substance::Sand(..) => css::BEIGE,
             Substance::Rock => css::GREY,
@@ -58,7 +57,7 @@ impl Substance {
             Substance::Mud(..) => css::BROWN,
             Substance::Grass(..) => css::GREEN,
             _ => css::RED
-        });
+        })
     }
 }
 
@@ -68,11 +67,8 @@ pub fn update_void(mut _interface: UniverseInterface) {
 
 pub fn update_sand(mut interface: UniverseInterface) {
     let mut offset = 0;
-    match interface.get(0, 0).substance {
-        Substance::Sand(false) => {
-            offset = rand::thread_rng().gen_range(-1..2);
-        },
-        _ => {}
+    if let Substance::Sand(false) = interface.get(0, 0).substance {
+        offset = rand::thread_rng().gen_range(-1..2);
     }
     match interface.get(offset, 1).substance {
         Substance::Void | Substance::Water => {
@@ -88,31 +84,22 @@ pub fn update_sand(mut interface: UniverseInterface) {
 pub fn update_rock(mut interface: UniverseInterface) {
     let offsetx = rand::thread_rng().gen_range(-1..2);
     let offsety = rand::thread_rng().gen_range(-1..2);
-    match interface.get(offsetx, offsety).substance {
-        Substance::Water => {
-            if rand::thread_rng().gen_range(0..10) > 6 {
-                interface.set(0, 0, Substance::Sand(false));
-            }
-        },
-        _ => {}
+    if let Substance::Water = interface.get(offsetx, offsety).substance {
+        if rand::thread_rng().gen_range(0..10) > 6 {
+            interface.set(0, 0, Substance::Sand(false));
+        }
     }
 }
 
 pub fn update_water(mut interface: UniverseInterface) {
     let offset = rand::thread_rng().gen_range(-1..2);
-    match interface.get(offset, 1).substance {
-        Substance::Void => {
-            interface.swap(offset, 1);
-            return;
-        },
-        _ => {}
+    if let Substance::Void = interface.get(offset, 1).substance {
+        interface.swap(offset, 1);
+        return;
     }
     let offset = rand::thread_rng().gen_range(-1..2);
-    match interface.get(offset, 0).substance {
-        Substance::Void => {
-            interface.swap(offset, 0);
-        },
-        _ => {}
+    if let Substance::Void = interface.get(offset, 0).substance {
+        interface.swap(offset, 0);
     }
 }
 
@@ -179,7 +166,6 @@ pub fn update_mud(mut interface: UniverseInterface) {
         Substance::Void | Substance::Water => {
             interface.set(0, 0, Substance::Mud(true, expose_time));
             interface.swap(offset, 1);
-            return
         },
         _ => {
             if let Substance::Void = interface.get(0, -1).substance {

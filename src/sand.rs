@@ -52,7 +52,6 @@ impl Universe {
             width: w,
             height: h
         };
-
         universe.vec.resize(
             (w*h).try_into().unwrap(),
             Cell {
@@ -60,8 +59,7 @@ impl Universe {
                 color: Color::Srgba(css::BLACK),
                 has_ticked: false
             });
-
-        return universe;
+        universe
     }
 
     pub fn get(&self, x: isize, y: isize) -> Cell {
@@ -72,18 +70,18 @@ impl Universe {
             };
         }
         let index = y*self.width + x;
-        return self.vec[usize::try_from(index).ok().unwrap()].clone();
+        self.vec[usize::try_from(index).ok().unwrap()].clone()
     }
 
     pub fn get_mut(&mut self, x: isize, y: isize) -> &mut Cell {
         let index = y*self.width + x;
-        return &mut self.vec[usize::try_from(index).unwrap_or_else(|_| panic!("Invalid index for get_mut {x}, {y}"))];
+        &mut self.vec[usize::try_from(index).unwrap_or_else(|_| panic!("Invalid index for get_mut {x}, {y}"))]
     }
 
     pub fn swap(&mut self, x1: isize, y1: isize, x2: isize, y2: isize) {
         self.vec.swap(
             usize::try_from(y1*self.width + x1).unwrap_or_else(|_| panic!("Invalid index for swap {x1}, {y1}")),
-            usize::try_from(y2*self.width + x2).unwrap_or_else(|_| panic!("Invalid index for swap {x2}, {y2}")))
+            usize::try_from(y2*self.width + x2).unwrap_or_else(|_| panic!("Invalid index for swap {x2}, {y2}")));
     }
 }
 
@@ -98,7 +96,7 @@ impl UniverseInterface<'_> {
     pub fn get(&self, x: isize, y: isize) -> Cell {
         let tx = self.x + x;
         let ty = self.y + y;
-        return self.universe_ref.get(tx, ty);
+        self.universe_ref.get(tx, ty)
     }
 
     pub fn set(&mut self, x: isize, y: isize, substance: Substance) {
@@ -185,7 +183,7 @@ fn paint_substance(
     let window = q_window.single();
 
     if let Some(world_position) = window.cursor_position()
-        .and_then(|cursor| Some(camera.viewport_to_world(camera_transform, cursor)))
+        .map(|cursor| camera.viewport_to_world(camera_transform, cursor))
         .map(|ray| ray.unwrap().origin.truncate())
     {
         let universe_x = (world_position.x.round() as isize + universe.width)/config.scale as isize;

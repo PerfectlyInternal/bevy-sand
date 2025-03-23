@@ -26,7 +26,7 @@ struct OutputImage(Handle<Image>);
 
 fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>, config: Res<UniverseConfig>) {
     commands.spawn(PerfUiFramerateEntries::default());
-    commands.spawn(Camera2d::default());
+    commands.spawn(Camera2d);
 
     // create an image that we are going to draw into
     let image = Image::new_fill(
@@ -77,7 +77,7 @@ fn get_color(x: isize, y: isize, time: f32, substance: Substance) -> Color {
                     z: time
                 });
             let base_color = substance.default_color();
-            return base_color.lighter(noise * 0.03)
+            base_color.lighter(noise * 0.03)
         },
         // static noise
         Substance::Sand(..) | Substance::Rock | Substance::Dirt(..) | Substance::Grass(..) => {
@@ -88,8 +88,8 @@ fn get_color(x: isize, y: isize, time: f32, substance: Substance) -> Color {
                     z: 1.0
                 });
             let base_color = substance.default_color();
-            return base_color.lighter(noise * 0.03)
+            base_color.lighter(noise * 0.03)
         },
-        _ => { return substance.default_color(); } 
+        _ => { substance.default_color() } 
     }
 }
