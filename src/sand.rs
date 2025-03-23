@@ -120,19 +120,7 @@ impl UniverseInterface<'_> {
 }
 
 fn setup(mut commands: Commands, config: Res<UniverseConfig>) {
-    let mut universe = Universe::with_dimensions(config.width, config.height);
-    for x in 10..250 {
-        for y in 5..25 {
-            universe.get_mut(x, y).substance = Substance::Water;
-            universe.get_mut(x, y).color = Color::Srgba(css::BLUE);
-        }
-    }
-    for x in 10..250 {
-        for y in 25..50 {
-            universe.get_mut(x, y).substance = Substance::Rock;
-            universe.get_mut(x, y).color = Color::Srgba(css::GREY);
-        }
-    }
+    let universe = Universe::with_dimensions(config.width, config.height);
     println!("SandPlugin setting up...");
     println!("Universe size: {} x {}", universe.width, universe.height);
     commands.insert_resource(universe);
