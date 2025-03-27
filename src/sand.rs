@@ -152,6 +152,8 @@ fn update_cell(interface: UniverseInterface) {
             Substance::Dirt(..) => update_dirt(interface),
             Substance::Mud(..) => update_mud(interface),
             Substance::Grass(..) => update_grass(interface),
+            Substance::Fire(..) => update_fire(interface),
+            Substance::Smoke(..) => update_smoke(interface),
             other => {println!("updating {other}!");}
         }
     }
@@ -166,7 +168,7 @@ fn select_substance(mut select: ResMut<SelectedSubstance>, keys: Res<ButtonInput
             KeyCode::Digit3 => Substance::Water,
             KeyCode::Digit4 => Substance::Dirt(false, 0),
             KeyCode::Digit5 => Substance::Mud(false, 0),
-            KeyCode::Digit6=> Substance::Grass(0, 5),
+            KeyCode::Digit6 => Substance::Fire(10),
             _ => select.0.clone()
         }
     }

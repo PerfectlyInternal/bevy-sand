@@ -28,6 +28,12 @@ pub enum Substance {
     Grass(u8, u8),
     // mud falls like sand, turns into dirt with enough exposure to air
     Mud(bool, u8),
+    // fire spreads to nearby flammable cells
+    // u8 is remaining fuel left to burn, 50% chance of consuming one each tick
+    Fire(u8),
+    // smoke spawns from fire, and decays into void after its time reaches 0
+    // drifts upwards the same way water falls
+    Smoke(u8),
 
 }
 
@@ -42,6 +48,8 @@ impl fmt::Display for Substance {
            Substance::Dirt(a, b) => write!(f, "dirt, falling: {a}, time exposed: {b}"),
            Substance::Mud(a, b) => write!(f, "mud, falling: {a} time exposed: {b}"),
            Substance::Grass(a, b) => write!(f, "grass, grow time: {a}, height remaining: {b}"),
+           Substance::Fire(a) => write!(f, "fire, fuel: {a}"),
+           Substance::Smoke(a) => write!(f, "smoke, time left: {a}"),
        }
     }
 }
@@ -57,13 +65,15 @@ impl Substance {
             Substance::Dirt(..) => css::SADDLE_BROWN,
             Substance::Mud(..) => css::BROWN,
             Substance::Grass(..) => css::GREEN,
+            Substance::Fire(..) => css::GOLDENROD,
+            Substance::Smoke(..) => css::DARK_GRAY,
             _ => css::RED
         })
     }
 }
 
 pub fn update_void(mut _interface: UniverseInterface) {
-
+    // does nothing
 }
 
 pub fn update_sand(mut interface: UniverseInterface) {
@@ -140,7 +150,7 @@ pub fn update_grass(mut interface: UniverseInterface) {
     if let Substance::Grass(time, remheight) = interface.get(0, 0).substance {
         match interface.get(0, -1).substance {
             Substance::Void => {
-                if time > 5 && remheight > 0 {
+                if remheight > 0 && time > 5 {
                     interface.set(0, -1, Substance::Grass(0, remheight - 1));
                 // only tick the grass growth about 20% of the time, to make it more organic
                 } else if rand::thread_rng().gen_range(0..10) > 8 {
@@ -148,10 +158,11 @@ pub fn update_grass(mut interface: UniverseInterface) {
                 }
             },
             Substance::Grass(_, rh) => {
-                if rh < remheight - 1 {
+                if remheight > 0 && rh < remheight - 1 {
                     interface.set(0, 0, Substance::Grass(0, remheight - 1))
                 }
             },
+            Substance::Fire(..) => {}
             _ => interface.set(0, 0, Substance::Dirt(false, 0)),
         }
     }
@@ -181,4 +192,56 @@ pub fn update_mud(mut interface: UniverseInterface) {
         }
     }
 
+}
+
+pub fn update_fire(mut interface: UniverseInterface) {
+    let offsetx = rand::thread_rng().gen_range(-1..2);
+    let offsety = rand::thread_rng().gen_range(-1..2);
+    match interface.get(offsetx, offsety).substance {
+        Substance::Grass(..) => {
+            // ignite with 1 in 2 chance
+            if rand::thread_rng().gen_range(0..10) > 5 {
+                interface.set(offsetx, offsety, Substance::Fire(10));
+            }
+        }
+        Substance::Void => {
+            // spawn smoke with 1 in 5 chance
+            if rand::thread_rng().gen_range(0..10) > 7 {
+                let smoke_time = rand::thread_rng().gen_range(100..250);
+                interface.set(offsetx, offsety, Substance::Smoke(smoke_time));
+            }
+        }
+        _ => {}
+    }
+    if let Substance::Fire(fuel) = interface.get(0, 0).substance {
+        if rand::thread_rng().gen_range(0..10) > 5 {
+            if fuel < 1 {
+                let smoke_time = rand::thread_rng().gen_range(100..250);
+                interface.set(0, 0, Substance::Smoke(smoke_time));
+            }
+            else {
+                interface.set(0, 0, Substance::Fire(fuel - 1));
+            }
+        }
+    }
+}
+
+pub fn update_smoke(mut interface: UniverseInterface) {
+    if let Substance::Smoke(time) = interface.get(0, 0).substance {
+        if time > 0 {
+            interface.set(0, 0, Substance::Smoke(time - 1));
+        } else {
+            interface.set(0, 0, Substance::Void);
+            return;
+        }
+    }
+    let offset = rand::thread_rng().gen_range(-1..2);
+    if let Substance::Void = interface.get(offset, -1).substance {
+        interface.swap(offset, -1);
+        return;
+    }
+    let offset = rand::thread_rng().gen_range(-1..2);
+    if let Substance::Void = interface.get(offset, 0).substance {
+        interface.swap(offset, 0);
+    }
 }
