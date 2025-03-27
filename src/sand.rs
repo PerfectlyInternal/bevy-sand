@@ -166,7 +166,7 @@ fn select_substance(mut select: ResMut<SelectedSubstance>, keys: Res<ButtonInput
             KeyCode::Digit3 => Substance::Water,
             KeyCode::Digit4 => Substance::Dirt(false, 0),
             KeyCode::Digit5 => Substance::Mud(false, 0),
-            KeyCode::Digit6=> Substance::Grass(0),
+            KeyCode::Digit6=> Substance::Grass(0, 5),
             _ => select.0.clone()
         }
     }

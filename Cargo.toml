@@ -4,7 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
+name = "bevy_sand"
+path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "bevy_sand_bin"
+path = "src/bin.rs"
 
 [dependencies]
 bevy = { version = "0.15.3", features = ["dynamic_linking"] }

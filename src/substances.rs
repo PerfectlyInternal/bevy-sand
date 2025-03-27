@@ -23,8 +23,9 @@ pub enum Substance {
     // the u8 value tracks this
     Dirt(bool, u8),
     // grass turns into dirt if something falls on it
-    // it also grows every 200 ticks, up to a max height of 5 cells
-    Grass(u8),
+    // it also grows every 5 random ticks, up to a max height of 5 cells
+    // first u8 is number of random ticks, second is remaining height to grow
+    Grass(u8, u8),
     // mud falls like sand, turns into dirt with enough exposure to air
     Mud(bool, u8),
 
@@ -40,7 +41,7 @@ impl fmt::Display for Substance {
            Substance::Water => write!(f, "water"),
            Substance::Dirt(a, b) => write!(f, "dirt, falling: {a}, time exposed: {b}"),
            Substance::Mud(a, b) => write!(f, "mud, falling: {a} time exposed: {b}"),
-           Substance::Grass(a) => write!(f, "grass, grow time: {a}"),
+           Substance::Grass(a, b) => write!(f, "grass, grow time: {a}, height remaining: {b}"),
        }
     }
 }
@@ -108,7 +109,7 @@ pub fn update_dirt(mut interface: UniverseInterface) {
     let mut expose_time = 0;
     if let Substance::Dirt(false, time) = interface.get(0, 0).substance {
         if time > 200 {
-            interface.set(0, 0, Substance::Grass(0));
+            interface.set(0, 0, Substance::Grass(0, 5));
             return
         }
         offset = rand::thread_rng().gen_range(-1..2);
@@ -136,17 +137,21 @@ pub fn update_dirt(mut interface: UniverseInterface) {
 }
 
 pub fn update_grass(mut interface: UniverseInterface) {
-    if let Substance::Grass(time) = interface.get(0, 0).substance {
+    if let Substance::Grass(time, remheight) = interface.get(0, 0).substance {
         match interface.get(0, -1).substance {
             Substance::Void => {
-                if time > 5 {
-                    interface.set(0, -1, Substance::Grass(0));
+                if time > 5 && remheight > 0 {
+                    interface.set(0, -1, Substance::Grass(0, remheight - 1));
                 // only tick the grass growth about 20% of the time, to make it more organic
-                } else if rand::thread_rng().gen_range(0..10) > 7 {
-                    interface.set(0, 0, Substance::Grass(time + 1));
+                } else if rand::thread_rng().gen_range(0..10) > 8 {
+                    interface.set(0, 0, Substance::Grass(time + 1, remheight));
                 }
             },
-            Substance::Grass(..) => interface.set(0, 0, Substance::Grass(0)),
+            Substance::Grass(_, rh) => {
+                if rh < remheight - 1 {
+                    interface.set(0, 0, Substance::Grass(0, remheight - 1))
+                }
+            },
             _ => interface.set(0, 0, Substance::Dirt(false, 0)),
         }
     }
