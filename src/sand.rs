@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::input::common_conditions::input_pressed;
 use bevy::window::PrimaryWindow;
-use bevy::color::{palettes::css, Color};
+// use bevy::color::{palettes::css, Color};
 
 use crate::substances::*;
 
@@ -34,7 +34,7 @@ pub struct UniverseConfig {
 #[derive(Default, Clone)]
 pub struct Cell {
     pub substance: Substance,
-    pub color: Color,
+    // pub color: Color,
     pub has_ticked: bool
 }
 
@@ -56,7 +56,7 @@ impl Universe {
             (w*h).try_into().unwrap(),
             Cell {
                 substance: Substance::Void,
-                color: Color::Srgba(css::BLACK),
+                // color: Color::Srgba(css::BLACK),
                 has_ticked: false
             });
         universe
