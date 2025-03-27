@@ -1,3 +1,4 @@
+use wasm_bindgen::prelude::*;
 use bevy::prelude::*;
 use bevy::window::PresentMode;
 
@@ -5,7 +6,8 @@ mod sand;
 mod substances;
 mod render;
 
-fn main(){
+#[wasm_bindgen]
+pub fn main(){
   App::new()
     .add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {

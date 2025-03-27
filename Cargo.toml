@@ -3,14 +3,21 @@ name = "bevy-sand"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
-bevy = "0.15.3"
+bevy = { version = "0.15.3", features = ["dynamic_linking"] }
 iyes_perf_ui = "0.4.0"
 noisy_bevy = "0.8.0"
 rand = "0.8.5"
+wasm-bindgen = "0.2.100"
 
 [profile.dev.package."*"]
 opt-level = 3
 
 [profile.dev]
+opt-level = 3
+
+[profile.release]
 opt-level = 3
