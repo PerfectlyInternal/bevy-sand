@@ -149,12 +149,15 @@ pub fn update_dirt(mut interface: UniverseInterface) {
 pub fn update_grass(mut interface: UniverseInterface) {
     if let Substance::Grass(time, remheight) = interface.get(0, 0).substance {
         match interface.get(0, -1).substance {
-            Substance::Void => {
+            Substance::Void | Substance::Fire(..) | Substance::Smoke(..) => {
                 if remheight > 0 && time > 5 {
                     interface.set(0, -1, Substance::Grass(0, remheight - 1));
                 // only tick the grass growth about 20% of the time, to make it more organic
                 } else if rand::thread_rng().gen_range(0..10) > 8 {
                     interface.set(0, 0, Substance::Grass(time + 1, remheight));
+                }
+                if time > 5 {
+                    interface.set(0, 0, Substance::Grass(0, remheight));
                 }
             },
             Substance::Grass(_, rh) => {
@@ -162,7 +165,6 @@ pub fn update_grass(mut interface: UniverseInterface) {
                     interface.set(0, 0, Substance::Grass(0, remheight - 1))
                 }
             },
-            Substance::Fire(..) => {}
             _ => interface.set(0, 0, Substance::Dirt(false, 0)),
         }
     }

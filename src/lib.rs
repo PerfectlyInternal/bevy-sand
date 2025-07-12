@@ -7,7 +7,7 @@ mod substances;
 mod render;
 
 #[wasm_bindgen]
-pub fn main(){
+pub fn main() {
   App::new()
     .add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {

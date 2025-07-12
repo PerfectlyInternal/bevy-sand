@@ -69,7 +69,7 @@ fn draw(handle: Res<OutputImage>, mut images: ResMut<Assets<Image>>, universe: R
 fn get_color(x: isize, y: isize, time: f32, substance: Substance) -> Color {
     match substance {
         // dynamic noise
-        Substance::Water | Substance::Mud(..) => {
+        Substance::Water | Substance::Mud(..) | Substance::Fire(..) | Substance::Smoke(..) => {
             let noise = simplex_noise_3d(
                 Vec3 { 
                     x: x as f32,
