@@ -14,5 +14,4 @@ jobs:
         with:
           version: 'latest'
       - run: wasm-pack build --target web
-        with:
 
