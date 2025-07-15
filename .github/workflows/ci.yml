@@ -7,6 +7,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - run: sudo apt-get install -y libasound2-dev libudev-dev
     - run: cargo test --all
 
   format:
@@ -21,6 +22,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    # for some reason clippy fails without libalsa
-    - run: sudo apt-get install -y libasound2-dev
+    - run: sudo apt-get install -y libasound2-dev libudev-dev
     - run: cargo clippy --all -- -D warnings
