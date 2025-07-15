@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use bevy::input::common_conditions::input_pressed;
+use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 // use bevy::color::{palettes::css, Color};
 
@@ -11,13 +11,16 @@ impl bevy::app::Plugin for SandPlugin {
         app.insert_resource(UniverseConfig {
             width: 256,
             height: 256,
-            scale: 2.0
+            scale: 2.0,
         });
         app.insert_resource(SelectedSubstance(Substance::Void));
         app.add_systems(Startup, setup);
         app.add_systems(FixedUpdate, update_universe);
         app.add_systems(Update, select_substance);
-        app.add_systems(Update, paint_substance.run_if(input_pressed(MouseButton::Left)));
+        app.add_systems(
+            Update,
+            paint_substance.run_if(input_pressed(MouseButton::Left)),
+        );
     }
 }
 
@@ -35,30 +38,31 @@ pub struct UniverseConfig {
 pub struct Cell {
     pub substance: Substance,
     // pub color: Color,
-    pub has_ticked: bool
+    pub has_ticked: bool,
 }
 
 #[derive(Resource)]
 pub struct Universe {
     vec: Vec<Cell>,
     pub width: isize,
-    pub height: isize
+    pub height: isize,
 }
 
 impl Universe {
     pub fn with_dimensions(w: isize, h: isize) -> Universe {
         let mut universe = Universe {
-            vec: Vec::<Cell>::with_capacity((w*h).try_into().unwrap()),
+            vec: Vec::<Cell>::with_capacity((w * h).try_into().unwrap()),
             width: w,
-            height: h
+            height: h,
         };
         universe.vec.resize(
-            (w*h).try_into().unwrap(),
+            (w * h).try_into().unwrap(),
             Cell {
                 substance: Substance::Void,
                 // color: Color::Srgba(css::BLACK),
-                has_ticked: false
-            });
+                has_ticked: false,
+            },
+        );
         universe
     }
 
@@ -69,19 +73,23 @@ impl Universe {
                 ..default()
             };
         }
-        let index = y*self.width + x;
+        let index = y * self.width + x;
         self.vec[usize::try_from(index).ok().unwrap()].clone()
     }
 
     pub fn get_mut(&mut self, x: isize, y: isize) -> &mut Cell {
-        let index = y*self.width + x;
-        &mut self.vec[usize::try_from(index).unwrap_or_else(|_| panic!("Invalid index for get_mut {x}, {y}"))]
+        let index = y * self.width + x;
+        &mut self.vec[usize::try_from(index)
+            .unwrap_or_else(|_| panic!("Invalid index for get_mut {x}, {y}"))]
     }
 
     pub fn swap(&mut self, x1: isize, y1: isize, x2: isize, y2: isize) {
         self.vec.swap(
-            usize::try_from(y1*self.width + x1).unwrap_or_else(|_| panic!("Invalid index for swap {x1}, {y1}")),
-            usize::try_from(y2*self.width + x2).unwrap_or_else(|_| panic!("Invalid index for swap {x2}, {y2}")));
+            usize::try_from(y1 * self.width + x1)
+                .unwrap_or_else(|_| panic!("Invalid index for swap {x1}, {y1}")),
+            usize::try_from(y2 * self.width + x2)
+                .unwrap_or_else(|_| panic!("Invalid index for swap {x2}, {y2}")),
+        );
     }
 }
 
@@ -135,7 +143,11 @@ fn update_universe(mut universe: ResMut<Universe>) {
     // update all cells
     for x in 0..universe.width {
         for y in 0..universe.height {
-            update_cell(UniverseInterface { universe_ref: &mut universe, x, y });
+            update_cell(UniverseInterface {
+                universe_ref: &mut universe,
+                x,
+                y,
+            });
         }
     }
 }
@@ -154,7 +166,9 @@ fn update_cell(interface: UniverseInterface) {
             Substance::Grass(..) => update_grass(interface),
             Substance::Fire(..) => update_fire(interface),
             Substance::Smoke(..) => update_smoke(interface),
-            other => {println!("updating {other}!");}
+            other => {
+                println!("updating {other}!");
+            }
         }
     }
 }
@@ -169,7 +183,7 @@ fn select_substance(mut select: ResMut<SelectedSubstance>, keys: Res<ButtonInput
             KeyCode::Digit4 => Substance::Dirt(false, 0),
             KeyCode::Digit5 => Substance::Mud(false, 0),
             KeyCode::Digit6 => Substance::Fire(10),
-            _ => select.0.clone()
+            _ => select.0.clone(),
         }
     }
 }
@@ -179,19 +193,26 @@ fn paint_substance(
     config: Res<UniverseConfig>,
     substance: Res<SelectedSubstance>,
     q_window: Query<&Window, With<PrimaryWindow>>,
-    q_camera: Query<(&Camera, &GlobalTransform)>
+    q_camera: Query<(&Camera, &GlobalTransform)>,
 ) {
     let (camera, camera_transform) = q_camera.single();
     let window = q_window.single();
 
-    if let Some(world_position) = window.cursor_position()
+    if let Some(world_position) = window
+        .cursor_position()
         .map(|cursor| camera.viewport_to_world(camera_transform, cursor))
         .map(|ray| ray.unwrap().origin.truncate())
     {
-        let universe_x = (world_position.x.round() as isize + universe.width)/config.scale as isize;
-        let universe_y = (-world_position.y.round() as isize + universe.height)/config.scale as isize;
-        if universe_x < 0 || universe_x >= universe.width || universe_y < 0 || universe_y >= universe.height {
-            return
+        let universe_x =
+            (world_position.x.round() as isize + universe.width) / config.scale as isize;
+        let universe_y =
+            (-world_position.y.round() as isize + universe.height) / config.scale as isize;
+        if universe_x < 0
+            || universe_x >= universe.width
+            || universe_y < 0
+            || universe_y >= universe.height
+        {
+            return;
         }
         universe.get_mut(universe_x, universe_y).substance = substance.0.clone();
     }

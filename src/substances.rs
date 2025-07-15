@@ -1,6 +1,6 @@
-use std::fmt;
+use bevy::color::{Color, palettes::css};
 use rand::Rng;
-use bevy::color::{palettes::css, Color};
+use std::fmt;
 
 use crate::sand::UniverseInterface;
 
@@ -34,23 +34,22 @@ pub enum Substance {
     // smoke spawns from fire, and decays into void after its time reaches 0
     // drifts upwards the same way water falls
     Smoke(u8),
-
 }
 
 impl fmt::Display for Substance {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-       match self {
-           Substance::Void => write!(f, "void"),
-           Substance::OutOfBounds => write!(f, "oob"),
-           Substance::Sand(a) => write!(f, "sand, falling: {a}"),
-           Substance::Rock => write!(f, "rock"),
-           Substance::Water => write!(f, "water"),
-           Substance::Dirt(a, b) => write!(f, "dirt, falling: {a}, time exposed: {b}"),
-           Substance::Mud(a, b) => write!(f, "mud, falling: {a} time exposed: {b}"),
-           Substance::Grass(a, b) => write!(f, "grass, grow time: {a}, height remaining: {b}"),
-           Substance::Fire(a) => write!(f, "fire, fuel: {a}"),
-           Substance::Smoke(a) => write!(f, "smoke, time left: {a}"),
-       }
+        match self {
+            Substance::Void => write!(f, "void"),
+            Substance::OutOfBounds => write!(f, "oob"),
+            Substance::Sand(a) => write!(f, "sand, falling: {a}"),
+            Substance::Rock => write!(f, "rock"),
+            Substance::Water => write!(f, "water"),
+            Substance::Dirt(a, b) => write!(f, "dirt, falling: {a}, time exposed: {b}"),
+            Substance::Mud(a, b) => write!(f, "mud, falling: {a} time exposed: {b}"),
+            Substance::Grass(a, b) => write!(f, "grass, grow time: {a}, height remaining: {b}"),
+            Substance::Fire(a) => write!(f, "fire, fuel: {a}"),
+            Substance::Smoke(a) => write!(f, "smoke, time left: {a}"),
+        }
     }
 }
 
@@ -67,7 +66,7 @@ impl Substance {
             Substance::Grass(..) => css::GREEN,
             Substance::Fire(..) => css::GOLDENROD,
             Substance::Smoke(..) => css::DARK_GRAY,
-            _ => css::RED
+            _ => css::RED,
         })
     }
 }
@@ -85,7 +84,7 @@ pub fn update_sand(mut interface: UniverseInterface) {
         Substance::Void | Substance::Water => {
             interface.set(0, 0, Substance::Sand(true));
             interface.swap(offset, 1);
-        },
+        }
         _ => {
             interface.set(0, 0, Substance::Sand(false));
         }
@@ -120,7 +119,7 @@ pub fn update_dirt(mut interface: UniverseInterface) {
     if let Substance::Dirt(false, time) = interface.get(0, 0).substance {
         if time > 200 {
             interface.set(0, 0, Substance::Grass(0, 5));
-            return
+            return;
         }
         offset = rand::thread_rng().gen_range(-1..2);
         expose_time = time;
@@ -129,8 +128,8 @@ pub fn update_dirt(mut interface: UniverseInterface) {
         Substance::Void => {
             interface.set(0, 0, Substance::Dirt(true, expose_time));
             interface.swap(offset, 1);
-            return
-        },
+            return;
+        }
         _ => {
             if let Substance::Void = interface.get(0, -1).substance {
                 expose_time += 1;
@@ -159,12 +158,12 @@ pub fn update_grass(mut interface: UniverseInterface) {
                 if time > 5 {
                     interface.set(0, 0, Substance::Grass(0, remheight));
                 }
-            },
+            }
             Substance::Grass(_, rh) => {
                 if remheight > 0 && rh < remheight - 1 {
                     interface.set(0, 0, Substance::Grass(0, remheight - 1))
                 }
-            },
+            }
             _ => interface.set(0, 0, Substance::Dirt(false, 0)),
         }
     }
@@ -176,7 +175,7 @@ pub fn update_mud(mut interface: UniverseInterface) {
     if let Substance::Mud(false, time) = interface.get(0, 0).substance {
         if time > 200 {
             interface.set(0, 0, Substance::Dirt(false, 0));
-            return
+            return;
         }
         offset = rand::thread_rng().gen_range(-1..2);
         expose_time = time;
@@ -185,7 +184,7 @@ pub fn update_mud(mut interface: UniverseInterface) {
         Substance::Void | Substance::Water => {
             interface.set(0, 0, Substance::Mud(true, expose_time));
             interface.swap(offset, 1);
-        },
+        }
         _ => {
             if let Substance::Void = interface.get(0, -1).substance {
                 expose_time += 1;
@@ -193,7 +192,6 @@ pub fn update_mud(mut interface: UniverseInterface) {
             interface.set(0, 0, Substance::Mud(false, expose_time));
         }
     }
-
 }
 
 pub fn update_fire(mut interface: UniverseInterface) {
@@ -220,8 +218,7 @@ pub fn update_fire(mut interface: UniverseInterface) {
             if fuel < 1 {
                 let smoke_time = rand::thread_rng().gen_range(100..250);
                 interface.set(0, 0, Substance::Smoke(smoke_time));
-            }
-            else {
+            } else {
                 interface.set(0, 0, Substance::Fire(fuel - 1));
             }
         }
