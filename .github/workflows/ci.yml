@@ -21,4 +21,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    # for some reason clippy fails without libalsa
+    - run: sudo apt-get install -y libasound2-dev
     - run: cargo clippy --all -- -D warnings
