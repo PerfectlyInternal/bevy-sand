@@ -13,7 +13,7 @@ impl bevy::app::Plugin for SandPlugin {
             height: 256,
             scale: 2.0,
         });
-        app.insert_resource(SelectedSubstance(Substance::Void));
+        app.insert_resource(SubstanceBrush{ substance: Substance::Void, radius: 1 });
         app.add_systems(Startup, setup);
         app.add_systems(FixedUpdate, update_universe);
         app.add_systems(Update, select_substance);
@@ -25,7 +25,10 @@ impl bevy::app::Plugin for SandPlugin {
 }
 
 #[derive(Resource)]
-pub struct SelectedSubstance(Substance);
+pub struct SubstanceBrush {
+    substance: Substance,
+    radius: isize,
+}
 
 #[derive(Resource)]
 pub struct UniverseConfig {
@@ -173,9 +176,9 @@ fn update_cell(interface: UniverseInterface) {
     }
 }
 
-fn select_substance(mut select: ResMut<SelectedSubstance>, keys: Res<ButtonInput<KeyCode>>) {
+fn select_substance(mut brush: ResMut<SubstanceBrush>, keys: Res<ButtonInput<KeyCode>>) {
     for key in keys.get_pressed() {
-        select.0 = match key {
+        brush.substance = match key {
             KeyCode::Digit0 => Substance::Void,
             KeyCode::Digit1 => Substance::Rock,
             KeyCode::Digit2 => Substance::Sand(false),
@@ -183,7 +186,7 @@ fn select_substance(mut select: ResMut<SelectedSubstance>, keys: Res<ButtonInput
             KeyCode::Digit4 => Substance::Dirt(false, 0),
             KeyCode::Digit5 => Substance::Mud(false, 0),
             KeyCode::Digit6 => Substance::Fire(10),
-            _ => select.0.clone(),
+            _ => brush.substance.clone(),
         }
     }
 }
@@ -191,7 +194,7 @@ fn select_substance(mut select: ResMut<SelectedSubstance>, keys: Res<ButtonInput
 fn paint_substance(
     mut universe: ResMut<Universe>,
     config: Res<UniverseConfig>,
-    substance: Res<SelectedSubstance>,
+    brush: Res<SubstanceBrush>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform)>,
 ) {
@@ -207,13 +210,19 @@ fn paint_substance(
             (world_position.x.round() as isize + universe.width) / config.scale as isize;
         let universe_y =
             (-world_position.y.round() as isize + universe.height) / config.scale as isize;
-        if universe_x < 0
-            || universe_x >= universe.width
-            || universe_y < 0
-            || universe_y >= universe.height
-        {
-            return;
+        
+        for offset_x in -brush.radius..=brush.radius {
+            for offset_y in -brush.radius..=brush.radius {
+                let target_x = universe_x + offset_x;
+                let target_y = universe_y + offset_y;
+                if target_x >= 0
+                    && target_x < universe.width
+                    && target_y >= 0
+                    && target_y < universe.height
+                {
+                    universe.get_mut(target_x, target_y).substance = brush.substance.clone();
+                }
+            }
         }
-        universe.get_mut(universe_x, universe_y).substance = substance.0.clone();
     }
 }
