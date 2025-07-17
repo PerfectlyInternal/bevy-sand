@@ -16,7 +16,6 @@ impl bevy::app::Plugin for UIPlugin {
 
 fn setup_perfui(mut commands: Commands) {
     commands.spawn(PerfUiDefaultEntries::default());
-    // commands.spawn(PerfUiFramerateEntries::default());
 }
 
 fn setup_substance_selection(mut commands: Commands) {

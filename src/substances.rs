@@ -54,7 +54,7 @@ impl fmt::Display for Substance {
 }
 
 impl Substance {
-    #[allow(unreachable_patterns)]
+    // #[allow(unreachable_patterns)]
     pub fn default_color(&self) -> Color {
         Color::Srgba(match self {
             Substance::Void => css::BLACK,
