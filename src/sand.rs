@@ -11,7 +11,7 @@ impl bevy::app::Plugin for SandPlugin {
         app.insert_resource(UniverseConfig {
             width: 256,
             height: 256,
-            scale: 2.0,
+            scale: 3.0,
         });
         app.insert_resource(SubstanceBrush{ substance: Substance::Void, radius: 1 });
         app.add_systems(Startup, setup);
@@ -207,9 +207,9 @@ fn paint_substance(
         .map(|ray| ray.unwrap().origin.truncate())
     {
         let universe_x =
-            (world_position.x.round() as isize + universe.width) / config.scale as isize;
+            (world_position.x.round() as isize / config.scale as isize) + (universe.width / 2);
         let universe_y =
-            (-world_position.y.round() as isize + universe.height) / config.scale as isize;
+            (-world_position.y.round() as isize / config.scale as isize) + (universe.height / 2);
         
         for offset_x in -brush.radius..=brush.radius {
             for offset_y in -brush.radius..=brush.radius {
