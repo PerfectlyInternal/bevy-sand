@@ -198,8 +198,8 @@ fn paint_substance(
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform)>,
 ) {
-    let (camera, camera_transform) = q_camera.single();
-    let window = q_window.single();
+    let Ok((camera, camera_transform)) = q_camera.single() else { return; };
+    let Ok(window) = q_window.single() else { return; };
 
     if let Some(world_position) = window
         .cursor_position()

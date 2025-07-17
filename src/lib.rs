@@ -5,6 +5,7 @@ use wasm_bindgen::prelude::*;
 mod render;
 mod sand;
 mod substances;
+mod ui;
 
 #[wasm_bindgen]
 pub fn main() {
@@ -20,5 +21,6 @@ pub fn main() {
         }))
         .add_plugins(sand::SandPlugin)
         .add_plugins(render::RenderPlugin)
+        .add_plugins(ui::UIPlugin)
         .run();
 }

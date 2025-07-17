@@ -13,9 +13,9 @@ name = "bevy_sand_bin"
 path = "src/bin.rs"
 
 [dependencies]
-bevy = { version = "0.15.3", features = ["dynamic_linking"] }
-iyes_perf_ui = "0.4.0"
-noisy_bevy = "0.8.0"
+bevy = { version = "0.16.1", features = ["dynamic_linking"] }
+iyes_perf_ui = "0.5"
+noisy_bevy = "0.10"
 rand = "0.8.5"
 wasm-bindgen = "0.2.100"
 getrandom = { version = "0.3", features = ["wasm_js"] }

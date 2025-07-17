@@ -4,8 +4,7 @@ use bevy::render::{
     render_asset::RenderAssetUsages,
     render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
-use iyes_perf_ui::entries::PerfUiFramerateEntries;
-use iyes_perf_ui::prelude::*;
+
 use noisy_bevy::simplex_noise_3d;
 
 use crate::sand::{Universe, UniverseConfig};
@@ -14,8 +13,6 @@ use crate::substances::Substance;
 pub struct RenderPlugin;
 impl bevy::app::Plugin for RenderPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin);
-        app.add_plugins(PerfUiPlugin);
         app.add_systems(Startup, setup);
         app.add_systems(Update, draw);
     }
@@ -25,7 +22,6 @@ impl bevy::app::Plugin for RenderPlugin {
 struct OutputImage(Handle<Image>);
 
 fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>, config: Res<UniverseConfig>) {
-    commands.spawn(PerfUiFramerateEntries::default());
     commands.spawn(Camera2d);
 
     // create an image that we are going to draw into
