@@ -13,7 +13,10 @@ impl bevy::app::Plugin for SandPlugin {
             height: 256,
             scale: 3.0,
         });
-        app.insert_resource(SubstanceBrush{ substance: Substance::Void, radius: 1 });
+        app.insert_resource(SubstanceBrush {
+            substance: Substance::Void,
+            radius: 1,
+        });
         app.add_systems(Startup, setup);
         app.add_systems(FixedUpdate, update_universe);
         app.add_systems(Update, select_substance);
@@ -198,8 +201,12 @@ fn paint_substance(
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform)>,
 ) {
-    let Ok((camera, camera_transform)) = q_camera.single() else { return; };
-    let Ok(window) = q_window.single() else { return; };
+    let Ok((camera, camera_transform)) = q_camera.single() else {
+        return;
+    };
+    let Ok(window) = q_window.single() else {
+        return;
+    };
 
     if let Some(world_position) = window
         .cursor_position()
@@ -210,7 +217,7 @@ fn paint_substance(
             (world_position.x.round() as isize / config.scale as isize) + (universe.width / 2);
         let universe_y =
             (-world_position.y.round() as isize / config.scale as isize) + (universe.height / 2);
-        
+
         for offset_x in -brush.radius..=brush.radius {
             for offset_y in -brush.radius..=brush.radius {
                 let target_x = universe_x + offset_x;

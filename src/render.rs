@@ -82,7 +82,11 @@ fn get_color(x: isize, y: isize, time: f32, substance: Substance) -> Color {
             base_color.lighter(noise * 0.03)
         }
         // static noise
-        Substance::Sand(..) | Substance::Mud(..) | Substance::Rock | Substance::Dirt(..) | Substance::Grass(..) => {
+        Substance::Sand(..)
+        | Substance::Mud(..)
+        | Substance::Rock
+        | Substance::Dirt(..)
+        | Substance::Grass(..) => {
             let noise = simplex_noise_3d(Vec3 {
                 x: x as f32,
                 y: y as f32,

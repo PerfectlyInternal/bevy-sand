@@ -14,7 +14,7 @@ impl bevy::app::Plugin for UIPlugin {
     }
 }
 
-fn setup_perfui(mut commands: Commands) { 
+fn setup_perfui(mut commands: Commands) {
     commands.spawn(PerfUiDefaultEntries::default());
     // commands.spawn(PerfUiFramerateEntries::default());
 }
@@ -47,12 +47,12 @@ fn setup_substance_selection(mut commands: Commands) {
 
     let button = commands
         .spawn((
-              button_node,
-              BorderColor(Color::BLACK),
-              BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
-              children![(button_text)],
+            button_node,
+            BorderColor(Color::BLACK),
+            BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+            children![(button_text)],
         ))
-    .id();
+        .id();
 
     commands.spawn(container_node).add_children(&[button]);
 }
